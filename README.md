@@ -78,7 +78,7 @@ We have an imbbalanced regression, were **rare events**, which are mainly high d
   - [smogn.R](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/smogn.R) contains helper functions in R
   - [cross_validation_smogn.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/cross_validation_smogn.py) contains the code that applies "SMOGN" inside cross validation
   - [extract\_rare.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/extract_rare.py) helper code for getting indices of rare values in testing data, extracting relevance function, and plotting rare values before and after oversampling
-  - [utility\_based\_error\_metrics](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/utility_based_error_metrics.py) code that computes **utility-based-error-metrics** Like
+  - [utility\_based\_error\_metrics.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/utility_based_error_metrics.py) code that computes **utility-based-error-metrics** Like
   **F<sub>1</sub>, precision, and recall**
 
 ### Requirements for Running Utility-Based-Regression
