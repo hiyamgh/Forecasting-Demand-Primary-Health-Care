@@ -55,48 +55,11 @@ We have done a suite of Machine learning models with cross validation. We have u
   - **Hyper parameters**: [model_hyperparams_grid.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/models_hyperparams_grid.py) contains dictionaries of hyper parameters to be search by Grid Search in [cross\_validation.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/cross_validation.py))
   - [container.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/container.py) contains paths and scaling options to each dataset
   - **Python Run Files for Column Variations**: [shallow collated run files](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/Code/python_run_files/shallow/train_collated_test_collated) is a directory containing all run files for applying cross validation on the **9** column variation we have. The [cross_validation.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/cross_validation.py) code is generaic and can be applied to any dataset as indicated below.
-  - **Disclaimer** In order to use the run files, put them as main children of the [Code directory](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/Code)
+  - ***Disclaimer** In order to use the run files, put them as main children of the [Code directory](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/Code)*
 
-```
-import pandas as pd
-from cross_validation import LearningModel
-from models_hyperparams_grid import possible_hyperparams_per_model as hyperparameters, models_to_test
-from container import *
 
-# collated training data
-KEY = 'all_columns'
-path = datasets[KEY]
-df_train_collated = pd.read_csv(path + 'df_train_collated.csv')
-df_test_collated = pd.read_csv(path + 'df_test_collated.csv')
+### Supervised Learning Results
 
-# specify output folder to save plots in
-output_folder = '../old_output/shallow_tctc/%s/train_collated_test_collated/' % KEY
-
-lm = LearningModel(df_train_collated, target_variable='demand',
-                        split_ratio=0.2, output_folder=output_folder,
-                        scale=True,
-                        scale_output=False,
-                        output_zscore=False, output_minmax=False, output_box=False, output_log=False,
-                        input_zscore=None, input_minmax=scaling[KEY], input_box=None, input_log=None,
-                        cols_drop=None,
-                        grid=True, random_grid=False,
-                        nb_folds_grid=10, nb_repeats_grid=10,
-                        testing_data=df_test_collated,
-                        save_errors_xlsx=True,
-                        save_validation=False)
-
-for model in models_to_test:
-    model_name = models_to_test[model]
-    print('\n********** Results for %s **********' % model_name)
-
-    # cross validation
-    lm.cross_validation(model, hyperparameters[model_name], model_name)
-
-    # saving error metrics in a csv file
-    lm.errors_to_csv()
-```
-
-## Supervised Learning Results
 |                        dataset                       |   best_model   |    r2    |   rmse   |    mse   |    mae   |
 |:----------------------------------------------------:|:--------------:|:--------:|:--------:|:--------:|:--------:|
 | all_columns                                          | linear_svr     | 0.825409 | 37.4547  | 1402.855 | 25.91299 |
@@ -109,6 +72,66 @@ for model in models_to_test:
 | all_columns_minus_weather_minus_lags_minus_civilians | ada_boost      | 0.386509 | 70.20998 | 4929.441 | 47.02291 |
 | univariate                                           | linear_svr     | 0.818153 | 38.22504 | 1461.153 | 26.03276 |
 
+## Utility-Based-Regression (SMOGN)
+We have an imbbalanced regression, were **rare events**, which are mainly high demand values, are poorly present in the data and they do add confusion to the machine learning models and degrade performance. We have used *Branco's* approach in the paper [SMOGN: a Pre-processing Approach for Imbalanced Regression](http://proceedings.mlr.press/v74/branco17a/branco17a.pdf) and forked [their repository](https://github.com/paobranco/SMOGN-LIDTA17/tree/master/). We have used their **R codes** and called some appropriate helper functions from our **python** code using python's [rpy2 module]()
+  - [DIBSRegress.R](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/DIBSRegress.R) Code that contains SMOGN algorithm
+  - [smogn.R](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/smogn.R) contains helper functions in R
+  - [cross_validation_smogn.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/cross_validation_smogn.py) contains the code that applies "SMOGN" inside cross validation
+  - [extract\_rare.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/extract_rare.py) helper code for getting indices of rare values in testing data, extracting relevance function, and plotting rare values before and after oversampling
+  - [utility\_based\_error\_metrics](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/utility_based_error_metrics.py) code that computes **utility-based-error-metrics** Like
+  **F<sub>1</sub>, precision, and recall**
+
+### Requirements for Running Utility-Based-Regression
+
+The experimental design was implemented in both Python and R language. Both code and data are in a format suitable for Python and R environment.
+
+In order to replicate the experiments in **CodeUbr** you will need a working installation of R. Check [https://www.r-project.org/] if you need to download and install it.
+
+You must have R ``3.6.x``
+
+In your R installation you also need to install the following additional R packages:
+
+  - DMwR
+  - performanceEstimation
+  - UBL
+  - uba: [https://www.dcc.fc.up.pt/~rpribeiro/uba/](https://www.dcc.fc.up.pt/~rpribeiro/uba/)
+  - operators
+  - class
+  - fields
+  - ROCR
+  - Hmisc
+  - R tools version 35. [https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/)
+
+
+  All the above packages, with the exception of uba package, can be installed from CRAN Repository directly as any "normal" R package. Essentially you need to issue the following commands within R:
+
+```r
+install.packages(c("DMwR", "performanceEstimation", "UBL", "operators", "class", "fields", "ROCR"))
+install.packages("Hmisc")
+```
+
+ Before you install the uba package, you need to have the latest version of **R tools**. Check [https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/)
+
+ Additionally, you will need to install uba package from a tar.gz file that you can download from [http://www.dcc.fc.up.pt/~rpribeiro/uba/](http://www.dcc.fc.up.pt/~rpribeiro/uba/).
+
+ For installing this package issue the following command within R:
+```r
+install.packages("uba_0.7.7.tar.gz",repos=NULL,dependencies=T)
+```
+
+Other than R, in order to run the remaining experiments in **CodeUbr** as well as the experiments in **Code** you need the following python modules
+
+  - rpy2 version 2.9.5
+  - pandas version 0.24.0
+  - keras
+  - tensorflow
+  - sklearn
+  - xgboost
+  - scipy
+  - matplotlib
+  - numpy
+
+Check the other README files in each folder to see more detailed instructions on how to run the experiments.
 
 
 
