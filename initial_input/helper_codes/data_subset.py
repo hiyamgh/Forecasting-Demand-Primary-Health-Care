@@ -4,7 +4,7 @@ import numpy as np
 import os.path
 import sys
 sys.path.append('..')
-from old_stuff.helper_codes.data_set import DataSet
+from initial_input.helper_codes.data_set import DataSet
 
 
 class DataSubset:

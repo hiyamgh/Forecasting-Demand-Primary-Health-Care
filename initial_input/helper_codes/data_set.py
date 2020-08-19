@@ -2,7 +2,7 @@ import pandas as pd
 import os.path
 import numpy as np
 import os
-from old_stuff.helper_codes.translations import countries_dict, sex_dict, services_dict, mohafaza_dict, qada_dict
+from initial_input.helper_codes.translations import countries_dict, sex_dict, services_dict, mohafaza_dict, qada_dict
 from geopy.geocoders import Nominatim
 from geopy import distance
 
