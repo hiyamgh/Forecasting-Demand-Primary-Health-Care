@@ -19,6 +19,10 @@ All of the text entries in this dataset were in Arabic and so were translated us
    - **Visualizations**: [data_visualize.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/helper_codes/data_visualize.py)
    - **Weather data scraping**: [generate_weather_data.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/generate_weather_data.py)
    - **VDC Data Handling**: [generate_vdc_data.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/generate_vdc_data.py)
+        - **Adaptive binning** for generating **civilians rank**
+        - **distances** from **Lebanese health centers** to **places of death in Syria in times of large scale events**
+        - distribution of **civilians rank** by **year**
+   - **VDC Plots**: [vdc\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/eda_plots/vdc_plots) contains all plots related to VDC explorations
    - **Generating inital 12 data subsets**: [generate_Faour_data_subsets.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/generate_Faour_datasubsets.py) This script is responsible for subsetting the original input data [Faour.xlsx](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/input/Faour/Faour.xlsx) into 12 data subsets, each representing one of the three governorates on interest (Akkar, Beqaa, Tripoli) and one of the services in the health centers (General Medicine, Gynecology, Pediatrics, and Pharmacy). the Focus was on Syrian Nationalities. The datasubsets could be found here: [Faour datsubsets](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/output/Faour_datasubsets). *The datasubsets follow the following naming structure: [service name]\_[Syria]\_[Governorate name]*
    - **Generating the final 12 datasubsets**: Here, we take the initial 12 datasubsets (the buller above) and we:
         - apply weekly down-sampling (in [Faour.xlsx](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/input/Faour/Faour.xlsx)) demand was in a daily basis. For a more general view, we aggregated demand to make it weekly
@@ -34,6 +38,18 @@ All of the text entries in this dataset were in Arabic and so were translated us
         - [input/all\_without\_date](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/input/all_without_date/collated) **without including** the ``date`` column
     - **Separated Datasets**: contains the separated datasets which we have used for collation. These are found in the following directory: [input/separated](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/input/all_with_date/separated)
     - **Disclaimer**: in each of tehe directories above, we set 9 column variations, removing certain columns and seeing which variation achieves teh best results. Therefore, there exists the *[minus\_colmn name]* in the directories above
+
+## Exploratory Data Analysis
+   - **Time Series**: [Code/timeseries.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/timeseries.py): Generates:
+        -  **time series plots**: ACF, PACF, auto-correlation, persistence model, line plot, histogram, density plot.
+        - **white noise detection**: L-jung box test
+        - **stationarity checking**: Augmented Dickey-Fuller Test
+        - adds lags, trend, and seasonality to the time series.
+    - **Time series plots**: [temporal\_structur\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/output/temporal_structure_plots)
+    - **EDA**: [eda.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/eda.py): Genrates all plots related to exploratory data analysis.
+    - **EDA Plots**: [eda\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/eda_plots)
+
+
 
 
 
