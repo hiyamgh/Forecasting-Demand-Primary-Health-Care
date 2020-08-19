@@ -45,9 +45,70 @@ All of the text entries in this dataset were in Arabic and so were translated us
         - **white noise detection**: L-jung box test
         - **stationarity checking**: Augmented Dickey-Fuller Test
         - adds lags, trend, and seasonality to the time series.
-    - **Time series plots**: [temporal\_structur\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/output/temporal_structure_plots)
+    - **Time series plots**: [temporal\_structure\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/output/temporal_structure_plots)
     - **EDA**: [eda.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/eda.py): Genrates all plots related to exploratory data analysis.
     - **EDA Plots**: [eda\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/eda_plots)
+
+## Supervised Learning
+We have done a suite of Machine learning models with cross validation. We have used 10-folds-10-reperats for cross validation.
+   - **Cross Validation**: [cross\_validation.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/cross_validation.py): the code that handles cross validation with hyper parameter tuning (Grid Search), produces the learning curves, applies scaling to the data.
+  - **Hyper parameters**: [model_hyperparams_grid.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/models_hyperparams_grid.py) contains dictionaries of hyper parameters to be search by Grid Search in [cross\_validation.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/cross_validation.py))
+  - [container.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/container.py) contains paths and scaling options to each dataset
+  - **Python Run Files for Column Variations**: [shallow collated run files](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/Code/python_run_files/shallow/train_collated_test_collated) is a directory containing all run files for applying cross validation on the **9** column variation we have. The [cross_validation.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/cross_validation.py) code is generaic and can be applied to any dataset as indicated below.
+  - **Disclaimer** In order to use the run files, put them as main children of the [Code directory](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/Code)
+
+```
+import pandas as pd
+from cross_validation import LearningModel
+from models_hyperparams_grid import possible_hyperparams_per_model as hyperparameters, models_to_test
+from container import *
+
+# collated training data
+KEY = 'all_columns'
+path = datasets[KEY]
+df_train_collated = pd.read_csv(path + 'df_train_collated.csv')
+df_test_collated = pd.read_csv(path + 'df_test_collated.csv')
+
+# specify output folder to save plots in
+output_folder = '../old_output/shallow_tctc/%s/train_collated_test_collated/' % KEY
+
+lm = LearningModel(df_train_collated, target_variable='demand',
+                        split_ratio=0.2, output_folder=output_folder,
+                        scale=True,
+                        scale_output=False,
+                        output_zscore=False, output_minmax=False, output_box=False, output_log=False,
+                        input_zscore=None, input_minmax=scaling[KEY], input_box=None, input_log=None,
+                        cols_drop=None,
+                        grid=True, random_grid=False,
+                        nb_folds_grid=10, nb_repeats_grid=10,
+                        testing_data=df_test_collated,
+                        save_errors_xlsx=True,
+                        save_validation=False)
+
+for model in models_to_test:
+    model_name = models_to_test[model]
+    print('\n********** Results for %s **********' % model_name)
+
+    # cross validation
+    lm.cross_validation(model, hyperparameters[model_name], model_name)
+
+    # saving error metrics in a csv file
+    lm.errors_to_csv()
+```
+
+## Supervised Learning Results
+|                        dataset                       |   best_model   |    r2    |   rmse   |    mse   |    mae   |
+|:----------------------------------------------------:|:--------------:|:--------:|:--------:|:--------:|:--------:|
+| all_columns                                          | linear_svr     | 0.825409 | 37.4547  | 1402.855 | 25.91299 |
+| all_columns_minus_weather                            | linear_svr     | 0.824745 | 37.52578 | 1408.184 | 25.84897 |
+| all_columns_minus_weather_minus_lags                 | ada_boost      | 0.40074  | 69.3909  | 4815.098 | 46.28747 |
+| all_columns_minus_weather_minus_vdc                  | linear_svr     | 0.823036 | 37.70834 | 1421.919 | 25.84334 |
+| all_columns_minus_weather_minus_distance             | linear_svr     | 0.824562 | 37.54541 | 1409.658 | 25.87975 |
+| all_columns_minus_weather_minus_civilians            | linear_svr     | 0.822958 | 37.71668 | 1422.548 | 25.86042 |
+| all_columns_minus_weather_minus_lags_minus_distance  | gradient_boost | 0.50776  | 62.89025 | 3955.183 | 43.24637 |
+| all_columns_minus_weather_minus_lags_minus_civilians | ada_boost      | 0.386509 | 70.20998 | 4929.441 | 47.02291 |
+| univariate                                           | linear_svr     | 0.818153 | 38.22504 | 1461.153 | 26.03276 |
+
 
 
 
