@@ -45,9 +45,9 @@ All of the text entries in this dataset were in Arabic and so were translated us
         - **white noise detection**: L-jung box test
         - **stationarity checking**: Augmented Dickey-Fuller Test
         - adds lags, trend, and seasonality to the time series.
-    - **Time series plots**: [temporal\_structure\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/output/temporal_structure_plots)
-    - **EDA**: [eda.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/eda.py): Genrates all plots related to exploratory data analysis.
-    - **EDA Plots**: [eda\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/eda_plots)
+   - **Time series plots**: [temporal\_structure\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/output/temporal_structure_plots)
+   - **EDA**: [eda.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/eda.py): Genrates all plots related to exploratory data analysis.
+   - **EDA Plots**: [eda\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/eda_plots)
 
 ## Supervised Learning
 We have done a suite of Machine learning models with cross validation. We have used 10-folds-10-reperats for cross validation.
