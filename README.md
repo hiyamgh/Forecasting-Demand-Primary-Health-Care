@@ -36,8 +36,8 @@ All of the text entries in this dataset were in Arabic and so were translated us
    - **Collated Datasets**: [generate_collated_separated_input_datasets.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/generate_collated_separated_input_datasets.py): collates the 12 data subsets together whilst adding **one hot encoding** to the service name and Governorate. The resulting **collated data sets** are found in:
         - [input/all\_with\_date](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/input/all_with_date/collated): **including** the ``date`` column
         - [input/all\_without\_date](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/input/all_without_date/collated) **without including** the ``date`` column
-    - **Separated Datasets**: contains the separated datasets which we have used for collation. These are found in the following directory: [input/separated](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/input/all_with_date/separated)
-    - **Disclaimer**: in each of tehe directories above, we set 9 column variations, removing certain columns and seeing which variation achieves teh best results. Therefore, there exists the *[minus\_colmn name]* in the directories above
+   - **Separated Datasets**: contains the separated datasets which we have used for collation. These are found in the following directory: [input/separated](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/input/all_with_date/separated)
+   - **Disclaimer**: in each of tehe directories above, we set 9 column variations, removing certain columns and seeing which variation achieves teh best results. Therefore, there exists the *[minus\_colmn name]* in the directories above
 
 ## Exploratory Data Analysis
    - **Time Series**: [Code/timeseries.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/timeseries.py): Generates:
