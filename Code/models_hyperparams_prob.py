@@ -3,8 +3,8 @@ from ngboost.distns import Exponential
 possible_hyperparams_per_model = {
 
     'bootstrap':{
-        'dropout': [0.3, 0.1, 0.01, 0.001, 0.0001],
-        'learning_rate': [0.3, 0.1, 0.001, 0.0001, 0.00001],
+        'dropout': [0.01, 0.1, 0.3],
+        'learning_rate': [0.3, 0.1],
         'epochs': [100],
         'n_heads': [3, 5, 7]
     },
@@ -17,8 +17,8 @@ possible_hyperparams_per_model = {
     },
 
     'mixture': {
-        'dropout': [0.001, 0.0001, 0.00001],
-        'learning_rate': [0.0001, 0.00001],
+        'dropout': [0.01, 0.1, 0.3],
+        'learning_rate': [0.3, 0.1],
         'epochs': [100],
         'n_mixtures': [3, 5, 7, 10]
     },
@@ -39,25 +39,32 @@ possible_hyperparams_per_model = {
     'mc_dropout': {
         'n_hidden': [150],
         'n_epochs': [100],
-        'num_hidden_layers': [4],
+        'num_hidden_layers': [2, 3, 4],
         'epochx': [4],
         'normalize': [True],
         'tau': [0.15],
         # 'dropout_rate': [0.01, 0.05, 0.1, 0.3],
-        'dropout_rate': [0.3],
-        'T': [100]
+        'dropout_rate': [0.1, 0.3],
+        'T': [10, 100]
     },
 
     'deep_ensemble': {
-
-        # the ones that had no nan in loss
-        'learning_rate': [0.0001],
         'batch_size': [456],
-        'optimizer_name': ['adam'],
+        'optimizer_name': ['adam', 'grad_desc', 'ada_grad', 'ada_delta'],
+        'learning_rate': [0.001],
         # 'max_iter': [30],
         'max_iter': [100],
         # 'sizes': [[256, 512, 1024, 1500, 1, 1]]
-        'sizes': [[256, 512, 1024, 1, 1]]
+        'sizes': [[256, 512, 1, 1], [156, 256, 1, 1]]
+
+        # # the ones that had no nan in loss
+        # 'learning_rate': [0.0001],
+        # 'batch_size': [456],
+        # 'optimizer_name': ['adam'],
+        # # 'max_iter': [30],
+        # 'max_iter': [100],
+        # # 'sizes': [[256, 512, 1024, 1500, 1, 1]]
+        # 'sizes': [[256, 512, 1024, 1, 1], [256, 512, 1, 1]]
     }
 }
 
