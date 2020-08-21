@@ -45,9 +45,9 @@ All of the text entries in this dataset were in Arabic and so were translated us
         - **white noise detection**: L-jung box test
         - **stationarity checking**: Augmented Dickey-Fuller Test
         - adds lags, trend, and seasonality to the time series.
-   - **Time series plots**: [temporal\_structure\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/output/temporal_structure_plots)
-   - **EDA**: [eda.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/eda.py): Genrates all plots related to exploratory data analysis.
-   - **EDA Plots**: [eda\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/eda_plots)
+    - **Time series plots**: [temporal\_structure\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/output/temporal_structure_plots)
+    - **EDA**: [eda.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/initial_input/eda.py): Genrates all plots related to exploratory data analysis.
+    - **EDA Plots**: [eda\_plots](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/initial_input/eda_plots)
 
 ## Supervised Learning
 We have done a suite of Machine learning models with cross validation. We have used 10-folds-10-reperats for cross validation.
@@ -78,8 +78,22 @@ We have an imbbalanced regression, were **rare events**, which are mainly high d
   - [smogn.R](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/smogn.R) contains helper functions in R
   - [cross_validation_smogn.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/cross_validation_smogn.py) contains the code that applies "SMOGN" inside cross validation
   - [extract\_rare.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/extract_rare.py) helper code for getting indices of rare values in testing data, extracting relevance function, and plotting rare values before and after oversampling
-  - [utility\_based\_error\_metrics.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/utility_based_error_metrics.py) code that computes **utility-based-error-metrics** Like
+  - [utility\_based\_error\_metrics](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/utility_based_error_metrics.py) code that computes **utility-based-error-metrics** Like
   **F<sub>1</sub>, precision, and recall**
+
+## Probabilistic Forecasts
+We have done probabilistic forecasts in both Ubr and non-Ubr mode
+   - **Ubr**
+        - **code** [CodeUbr\cross\_validation\_smogn\_prob.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/cross_validation_smogn_prob.py) code for runnig cross validation with SMOGN and probabilistic models
+        - **code** [CodeUbr\models\_hyperparams\_prob.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/CodeUbr/models_hyperparams_prob.py) hyper parameters for probabilistic models
+        - **models** [CodeUbr\probabilistic\_uncertainty](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/CodeUbr/probabilistic_uncertainty) contains the codes for the probabilistic models
+        - **run files** [CodeUbr\probabilistic\_run\_files](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/CodeUbr/probabilistic_run_files) run files for running probabilistic models on all experiments (9 column variations)
+
+   - **Non Ubr**
+       - **code** [Code\cross\_validation\_smogn\_prob.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/cross_validation_prob.py) code for runnig cross validation with probabilistic models
+       - **code** [Code\models\_hyperparams\_prob.py](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/blob/master/Code/models_hyperparams_prob.py) hyper parameters for probabilistic models
+       - **models** [Code\probabilistic\_uncertainty](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/Code/probabilistic_uncertainty) contains the codes for the probabilistic models
+       - **run files** [Code\probabilistic\_run\_files](https://github.com/hiyamgh/Forecasting-Demand-Primary-Health-Care/tree/master/Code/probabilistic_run_files) run files for running probabilistic models on all experiments (9 column variations)
 
 ### Requirements for Running Utility-Based-Regression
 
@@ -130,8 +144,6 @@ Other than R, in order to run the remaining experiments in **CodeUbr** as well a
   - scipy
   - matplotlib
   - numpy
-
-Check the other README files in each folder to see more detailed instructions on how to run the experiments.
 
 
 
