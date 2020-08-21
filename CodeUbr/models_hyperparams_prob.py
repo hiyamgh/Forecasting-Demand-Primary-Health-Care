@@ -42,13 +42,14 @@ possible_hyperparams_per_model = {
     'mc_dropout': {
         'n_hidden': [150],
         'n_epochs': [100],
-        'num_hidden_layers': [4],
+        # 'num_hidden_layers': [4, 5, 6],
+        'num_hidden_layers': [2, 3, 4],
         'epochx': [4],
         'normalize': [True],
         'tau': [0.15],
         # 'dropout_rate': [0.01, 0.05, 0.1, 0.3],
-        'dropout_rate': [0.3],
-        'T': [100]
+        'dropout_rate': [0.1, 0.3],
+        'T': [10, 100]
     },
 
     'deep_ensemble': {
