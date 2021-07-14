@@ -7,7 +7,7 @@ import time
 import warnings
 warnings.filterwarnings("ignore")
 import itertools as it
-from sklearn.model_selection import KFold, RepeatedKFold
+from sklearn.model_selection import KFold, RepeatedKFold, LeaveOneOut
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import learning_curve
 import matplotlib.pyplot as plt
@@ -31,6 +31,7 @@ class LearningModel:
                     grid=True, random_grid=False,
                     nb_folds_grid=None, nb_repeats_grid=None, nb_folds_random=None,
                     nb_repeats_random=None, nb_iterations_random=None,
+                    loo=False,
                     save_errors_xlsx=True,
                     save_validation=False):
 
@@ -107,17 +108,25 @@ class LearningModel:
         self.nb_folds_random = nb_folds_random
         self.nb_repeats_random = nb_repeats_random
         self.nb_iterations_random = nb_iterations_random
+        self.loo = loo
         self.split_ratio = split_ratio
 
         # save error metrics to xlsx sheet
         self.save_errors_xlsx = save_errors_xlsx
         self.save_validation = save_validation
+
         if self.save_errors_xlsx:
             self.results = pd.DataFrame(columns=['r2', 'adj-r2', 'rmse', 'mse', 'mae', 'mape',
                                                      'avg_%s' % self.target_variable,
                                                      'pearson', 'spearman', 'distance', 'coefficients'])
         else:
             self.results = None
+
+        if self.save_validation:
+            self.results_validation = pd.DataFrame(columns=['r2', 'adj-r2',
+                                                            'rmse', 'mse', 'mae', 'mape'])
+        else:
+            self.results_validation = None
 
         # if grid_search=True and random_search_then_grid=True
         if self.grid and self.random_grid:
@@ -516,12 +525,16 @@ class LearningModel:
         tempModels = []
 
         # specify the type of cv (kfold vs. repeated kfold)
-        if self.nb_repeats_grid is None:
-            print('running %d-fold cross validation' % self.nb_folds_grid)
-            kf = KFold(n_splits=self.nb_folds_grid, random_state=2652124)
+        if self.loo:
+            kf = LeaveOneOut() # leave one out does not take number of splits, because every sample will be once
+        #     a testing sample
         else:
-            print('running %d-fold-%d-repeats cross validation' % (self.nb_folds_grid, self.nb_repeats_grid))
-            kf = RepeatedKFold(n_splits=self.nb_folds_grid, n_repeats=self.nb_repeats_grid, random_state=2652124)
+            if self.nb_repeats_grid is None:
+                print('running %d-fold cross validation' % self.nb_folds_grid)
+                kf = KFold(n_splits=self.nb_folds_grid, random_state=2652124)
+            else:
+                print('running %d-fold-%d-repeats cross validation' % (self.nb_folds_grid, self.nb_repeats_grid))
+                kf = RepeatedKFold(n_splits=self.nb_folds_grid, n_repeats=self.nb_repeats_grid, random_state=2652124)
 
         t1 = time.time()
 
@@ -565,7 +578,10 @@ class LearningModel:
                         y_pred = self.inverse_boxcox(y_pred, self.y_train_lambda_)
                         y_val = self.inverse_boxcox(y_val, self.y_test_lambda_)
 
-                r2, adj_r2, rmse, mse, mae, mape, pearson, spearman, distance = get_stats(y_val, y_pred, X_val.shape[1])
+                if len(y_val) >= 2:
+                    r2, adj_r2, rmse, mse, mae, mape, _, _, _ = get_stats(y_val, y_pred, X_val.shape[1])
+                else:
+                    r2, adj_r2, rmse, mse, mae, mape = get_stats(y_val, y_pred, X_val.shape[1])
 
                 r2_scores.append(r2)
                 adj_r2_scores.append(adj_r2)
@@ -588,7 +604,7 @@ class LearningModel:
 
         if self.save_errors_xlsx:
             if self.save_validation:
-                self.results.loc['%s_val' % model_name] = pd.Series({'r2': tempModels[0][1],
+                self.results_validation.loc['%s' % model_name] = pd.Series({'r2': tempModels[0][1],
                                                           'adj-r2': tempModels[0][2],
                                                           'rmse': tempModels[0][3],
                                                           'mse': tempModels[0][4],
@@ -655,23 +671,26 @@ class LearningModel:
         self.plot_actual_vs_predicted_scatter_bisector(output_dataset, model_name, self.output_folder + 'train_test_forecasts_scatterplot_bisector/', 'predicted')
         self.produce_learning_curve(model_used, model_name, 10, self.output_folder + '/learning_curves/', parameters=winning_hyperparameters, nb_repeats=10)
 
-        r2, adj_r2, rmse, mse, mae, mape, pearson, spearman, distance = get_stats(y_test, y_pred, X_test.shape[1])
+        pearson, spearman, distance = '', '', ''
+        if len(y_test) >= 2:
+            r2, adj_r2, rmse, mse, mae, mape, pearson, spearman, distance = get_stats(y_test, y_pred, X_test.shape[1])
+        else:
+            r2, adj_r2, rmse, mse, mae, mape = get_stats(y_test, y_pred, X_test.shape[1])
         print('Testing Scores:\nR^2: %.5f\nAdj R^2: %.5f\nRMSE: %.5f\nMSE: %.5f\nMAE: %.5f\nMAPE: %.5f\n' %
               (r2, adj_r2, rmse, mse, mae, mape))
 
         avg_target = np.mean(y_test)
         print('Average %s: %.5f' % (self.target_variable, avg_target))
-        print('Pearson Correlation: %.5f' % pearson)
-        print('Spearman Correlation: %.5f' % spearman)
-        print('Distance Correlation: %.5f\n' % distance)
+
+        if pearson != '':
+            print('Pearson Correlation: %.5f' % pearson)
+            print('Spearman Correlation: %.5f' % spearman)
+            print('Distance Correlation: %.5f\n' % distance)
 
         print('function took %.5f mins\nfunction took %.5f secs\n' % (time_taken_min, time_taken_sec))
 
         if self.save_errors_xlsx:
-            if self.save_validation:
-                row_name = '%s_test' % model_name
-            else:
-                row_name = model_name
+            row_name = model_name
 
             if coefficients is not None:
                 self.results.loc[row_name] = pd.Series({'r2': r2, 'adj-r2': adj_r2, 'rmse': rmse, 'mse': mse,
@@ -960,6 +979,9 @@ class LearningModel:
             if not os.path.exists(path):
                 os.makedirs(path)
             errors_df.to_csv(path + 'errors.csv')
+            if self.results_validation is not None:
+                validation_errors_df = self.results_validation
+                validation_errors_df.to_csv(path + 'errors_validation.csv')
 
 
 def create_output_dataset(df_test_curr, y_pred, model_name, output_folder, target_variable, service_name=None, mohafaza=None):
@@ -1018,11 +1040,15 @@ def get_stats(y_test, y_pred, nb_columns):
     mae_score = mean_absolute_error(y_test, y_pred) # MAE
     mape_score = mean_absolute_percentage_error(y_test, y_pred) # MAPE
 
-    pearson_corr, _ = pearsonr(y_test, y_pred)
-    spearman_corr, _ = spearmanr(y_test, y_pred)
-    distance_corr = distance.correlation(y_test, y_pred)
+    if len(y_test) >= 2:
+        pearson_corr, _ = pearsonr(y_test, y_pred)
+        spearman_corr, _ = spearmanr(y_test, y_pred)
+        distance_corr = distance.correlation(y_test, y_pred)
 
-    return r2_Score, adjusted_r2, rmse_score, mse_score, mae_score, mape_score, pearson_corr, spearman_corr, distance_corr
+        return r2_Score, adjusted_r2, rmse_score, mse_score, mae_score, mape_score, pearson_corr, spearman_corr, distance_corr
+    else:
+
+        return r2_Score, adjusted_r2, rmse_score, mse_score, mae_score, mape_score
 
 
 def replace_zeros_with_ones(df):
