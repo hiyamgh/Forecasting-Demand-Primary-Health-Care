@@ -1,7 +1,7 @@
 import os
-from sklearn.tree.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, mean_absolute_percentage_error
 import numpy as np
 import time
 import warnings
@@ -549,10 +549,7 @@ class LearningModel:
         print('Total nb of hyper params: %d' % len(get_param_grid(parameters)))
         for parameter in get_param_grid(parameters):
 
-            if model_name == 'cat_boost':
-                model = model_used(**parameter, verbose=0)
-            else:
-                model = model_used(**parameter)
+            model = model_used(**parameter)
             r2_scores, adj_r2_scores, rmse_scores, mse_scores, mae_scores, mape_scores = [], [], [], [], [], []
 
             for train_index, test_index in kf.split(X_train):
@@ -583,24 +580,36 @@ class LearningModel:
                 else:
                     r2, adj_r2, rmse, mse, mae, mape = get_stats(y_val, y_pred, X_val.shape[1])
 
-                r2_scores.append(r2)
-                adj_r2_scores.append(adj_r2)
+                if self.loo:
+                    pass
+                else:
+                    r2_scores.append(r2)
+                    adj_r2_scores.append(adj_r2)
                 rmse_scores.append(rmse)
                 mse_scores.append(mse)
                 mae_scores.append(mae)
                 mape_scores.append(mape)
 
-            tempModels.append(
-                [parameter, np.mean(r2_scores), np.mean(adj_r2_scores), np.mean(rmse_scores), np.mean(mse_scores),
-                 np.mean(mae_scores), np.mean(mape_scores)])
+            if self.loo:
+                tempModels.append(
+                    [parameter, '-', '-', np.mean(rmse_scores), np.mean(mse_scores),
+                     np.mean(mae_scores), np.mean(mape_scores)])
+            else:
+                tempModels.append(
+                    [parameter, np.mean(r2_scores), np.mean(adj_r2_scores), np.mean(rmse_scores), np.mean(mse_scores),
+                     np.mean(mae_scores), np.mean(mape_scores)])
 
         tempModels = sorted(tempModels, key=lambda k: k[3])
         winning_hyperparameters = tempModels[0][0]
 
         print('winning hyper parameters: ', str(winning_hyperparameters))
-        print('Best Validation Scores:\nR^2: %.5f\nAdj R^2: %.5f\nRMSE: %.5f\nMSE: %.5f\nMAE: %.5f\nMAPE: %.5f\n' %
-              (tempModels[0][1], tempModels[0][2], tempModels[0][3], tempModels[0][4], tempModels[0][5],
-               tempModels[0][6]))
+        if self.loo:
+            print('Best Validation Scores:\nR^2: -\nAdj R^2: -\nRMSE: %.5f\nMSE: %.5f\nMAE: %.5f\nMAPE: %.5f\n' %
+                  (tempModels[0][3], tempModels[0][4], tempModels[0][5], tempModels[0][6]))
+        else:
+            print('Best Validation Scores:\nR^2: %.5f\nAdj R^2: %.5f\nRMSE: %.5f\nMSE: %.5f\nMAE: %.5f\nMAPE: %.5f\n' %
+                  (tempModels[0][1], tempModels[0][2], tempModels[0][3], tempModels[0][4], tempModels[0][5],
+                   tempModels[0][6]))
 
         if self.save_errors_xlsx:
             if self.save_validation:
@@ -611,10 +620,7 @@ class LearningModel:
                                                           'mae': tempModels[0][5],
                                                           'mape': tempModels[0][6]})
 
-        if model_name == 'cat_boost':
-            model = model_used(**winning_hyperparameters, verbose=0)
-        else:
-            model = model_used(**winning_hyperparameters)
+        model = model_used(**winning_hyperparameters)
 
         if self.scale:
             X_train, X_test, y_train, y_test, scaler_out_final = self.scale_cols(X_train, X_test, y_train, y_test)
@@ -943,7 +949,7 @@ class LearningModel:
         plt.plot(list(range(1, len(df) + 1)), df[self.target_variable], color='b', label='actual')
         plt.plot(list(range(1, len(df) + 1)), df[predicted_variable], color='r', label='predicted')
         plt.legend(loc='best')
-        plt.suptitle('actual vs. predicted forecasts for %s in %s' % (self.service_name, self.mohafaza))
+        # plt.suptitle('actual vs. predicted forecasts for %s in %s' % (self.service_name, self.mohafaza))
 
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
@@ -964,7 +970,7 @@ class LearningModel:
         ax.set_xlim(lims)
         ax.set_ylim(lims)
 
-        plt.suptitle('actual vs. predicted forecasts')
+        # plt.suptitle('actual vs. predicted forecasts')
 
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
@@ -975,12 +981,14 @@ class LearningModel:
         ''' saves the error metrics (stored in `results`) as a csv file '''
         if self.results is not None:
             errors_df = self.results
+            errors_df = errors_df.sort_values(by=['rmse'])
             path = self.output_folder + 'error_metrics_csv/'
             if not os.path.exists(path):
                 os.makedirs(path)
             errors_df.to_csv(path + 'errors.csv')
             if self.results_validation is not None:
                 validation_errors_df = self.results_validation
+                validation_errors_df = validation_errors_df.sort_values(by=['rmse'])
                 validation_errors_df.to_csv(path + 'errors_validation.csv')
 
 
@@ -1004,16 +1012,16 @@ def create_output_dataset(df_test_curr, y_pred, model_name, output_folder, targe
     return df_test_curr
 
 
-def mean_absolute_percentage_error(y_true, y_pred):
-    '''
-    Function to compute the mean absolute percentage error (MAPE) between an actual and
-    predicted vectors
-    :param y_true: the actual values
-    :param y_pred: the predicted values
-    :return: MAPE
-    '''
-    y_true, y_pred = np.array(y_true), np.array(y_pred)
-    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+# def mean_absolute_percentage_error(y_true, y_pred):
+#     '''
+#     Function to compute the mean absolute percentage error (MAPE) between an actual and
+#     predicted vectors
+#     :param y_true: the actual values
+#     :param y_pred: the predicted values
+#     :return: MAPE
+#     '''
+#     y_true, y_pred = np.array(y_true), np.array(y_pred)
+#     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
 
 def get_stats(y_test, y_pred, nb_columns):
